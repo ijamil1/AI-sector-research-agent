@@ -45,24 +45,29 @@ Important library behavior:
 Default budgets from `Settings` are:
 
 - `MAX_SEARCH_CALLS=8`
-- `MAX_TASK_CALLS=3`
-- `MAX_ORCHESTRATOR_MODEL_CALLS=6`
+- `MAX_TASK_CALLS=10`
+- `MAX_ORCHESTRATOR_MODEL_CALLS=30`
+- `MAX_RESEARCHER_MODEL_CALLS=30`
 
 The middleware counts:
 
 - `web_search` tool calls as `web_search`
 - `task` calls where `subagent_type == "research-agent"` as `research_agent_tasks`
 - outer-orchestrator model calls as `orchestrator_model_calls`
+- research-subagent model calls as `researcher_model_calls`
 
 The outer orchestrator does not expose `web_search` to its model and sets its
 search limit to `0`. The `research-agent` subagent exposes `web_search` and has
 its own `ResearchLimitsMiddleware` with task delegation disabled via
 `max_task_calls=0`. Both the orchestrator and research subagent middleware append
 current budget notices to the system prompt. The orchestrator also blocks model
-calls once its configured model-call budget is exhausted; research subagent
-activity is bounded through the `web_search` tool budget instead.
+calls once its configured model-call budget is exhausted. The research subagent
+also has a model-call budget, and its research activity is bounded through the
+`web_search` tool budget.
 
-The middleware does not count filesystem tools or the auto-added `general-purpose` subagent.
+The middleware does not count filesystem tools. It blocks `task` calls to any
+subagent type other than `research-agent`, including the auto-added
+`general-purpose` subagent.
 
 ## Commands
 

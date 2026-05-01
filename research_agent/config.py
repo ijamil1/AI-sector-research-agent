@@ -35,7 +35,7 @@ class Settings:
             max_search_calls=_parse_int("MAX_SEARCH_CALLS", 8),
             max_task_calls=_parse_int("MAX_TASK_CALLS", 10),
             max_orchestrator_model_calls=_parse_int("MAX_ORCHESTRATOR_MODEL_CALLS", 30),
-            max_researcher_model_calls=_parse_int("MAX_RESEARCHER_MODEL_CALLS", 30)
+            max_researcher_model_calls=_parse_int("MAX_RESEARCHER_MODEL_CALLS", 30),
         )
 
 

@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from deepagents import create_deep_agent
 from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
-from datetime import datetime
 
 from research_agent.config import Settings
 from research_agent.middleware import ResearchLimitsMiddleware
-from research_agent.prompts import ORCHESTRATOR_PROMPT, RESEARCHER_PROMPT, SUBAGENT_DELEGATION_INSTRUCTIONS
+from research_agent.prompts import (
+    ORCHESTRATOR_PROMPT,
+    RESEARCHER_PROMPT,
+    SUBAGENT_DELEGATION_INSTRUCTIONS,
+)
 from research_agent.tools import web_search
 
 load_dotenv()
@@ -34,7 +39,8 @@ research_subagent = {
         ResearchLimitsMiddleware(
             max_search_calls=settings.max_search_calls,
             max_task_calls=0,
-            max_model_calls=settings.max_researcher_model_calls
+            max_model_calls=settings.max_researcher_model_calls,
+            model_call_counter="researcher_model_calls",
         )
     ],
 }

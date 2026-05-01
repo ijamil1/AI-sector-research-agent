@@ -71,6 +71,7 @@ def _model_request(state: dict[str, Any] | None = None) -> ModelRequest:
 def _model_handler(request: ModelRequest) -> ModelResponse:
     assert request.system_message is not None
     assert "Runtime Research Budgets" in request.system_message.text
+    assert "orchestrator model calls" not in request.system_message.text
     return ModelResponse(result=[AIMessage(content="model ok")])
 
 
@@ -118,6 +119,23 @@ def test_blocks_research_agent_task_at_budget() -> None:
     assert isinstance(result, ToolMessage)
     assert result.status == "error"
     assert "research budget exceeded for research-agent delegation" in result.content
+
+
+def test_blocks_unsupported_task_delegation() -> None:
+    middleware = ResearchLimitsMiddleware(
+        max_search_calls=5,
+        max_task_calls=5,
+    )
+    request = _request(
+        "task",
+        args={"subagent_type": "general-purpose", "description": "Research with GP"},
+    )
+
+    result = middleware.wrap_tool_call(request, _handler)
+
+    assert isinstance(result, ToolMessage)
+    assert result.status == "error"
+    assert "research budget exceeded for unsupported subagent delegation" in result.content
 
 
 def test_command_results_keep_existing_counter_updates() -> None:
@@ -183,4 +201,19 @@ def test_blocks_model_call_at_budget() -> None:
     result = middleware.wrap_model_call(_model_request(state=state), handler)
 
     assert isinstance(result, ModelResponse)
-    assert "research budget exceeded for orchestrator model" in result.result[0].content
+    assert result.result[0].content == "Orchestrator model call budget exhausted. Ending this run."
+
+
+def test_counts_researcher_model_calls() -> None:
+    middleware = ResearchLimitsMiddleware(
+        max_search_calls=5,
+        max_task_calls=0,
+        max_model_calls=2,
+        model_call_counter="researcher_model_calls",
+    )
+
+    result = middleware.wrap_model_call(_model_request(), _model_handler)
+
+    assert result.command.update["research_limit_counts"] == {
+        "researcher_model_calls": 1
+    }

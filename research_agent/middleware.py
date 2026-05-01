@@ -17,7 +17,7 @@ from langchain.tools.tool_node import ToolCallRequest
 from langchain_core.messages import AIMessage, ToolMessage
 from langgraph.types import Command
 
-ResearchModelCallCounter = Literal["orchestrator_model_calls"]
+ResearchModelCallCounter = Literal["orchestrator_model_calls", "researcher_model_calls"]
 
 
 class ResearchLimitCounts(TypedDict, total=False):
@@ -26,6 +26,7 @@ class ResearchLimitCounts(TypedDict, total=False):
     web_search: int
     research_agent_tasks: int
     orchestrator_model_calls: int
+    researcher_model_calls: int
 
 
 def _counter_reducer(
@@ -170,7 +171,7 @@ class ResearchLimitsMiddleware(AgentMiddleware[ResearchLimitsState, Any, Any]):
         args = tool_call.get("args") or {}
         if args.get("subagent_type") == "research-agent":
             return "research_agent_tasks"
-        return None
+        return "unsupported_task"
 
     def _blocked_message(
         self,
@@ -196,11 +197,13 @@ class ResearchLimitsMiddleware(AgentMiddleware[ResearchLimitsState, Any, Any]):
     def _limit_for_counter(self, counter: str) -> int:
         if counter == "web_search":
             return self.max_search_calls
-        if counter == "orchestrator_model_calls":
+        if counter in {"orchestrator_model_calls", "researcher_model_calls"}:
             if self.max_model_calls is None:
                 msg = f"No model-call limit configured for {counter}"
                 raise ValueError(msg)
             return self.max_model_calls
+        if counter == "unsupported_task":
+            return 0
         return self.max_task_calls
 
     @staticmethod
@@ -209,6 +212,10 @@ class ResearchLimitsMiddleware(AgentMiddleware[ResearchLimitsState, Any, Any]):
             return "web_search"
         if counter == "orchestrator_model_calls":
             return "orchestrator model"
+        if counter == "researcher_model_calls":
+            return "researcher model"
+        if counter == "unsupported_task":
+            return "unsupported subagent delegation"
         return "research-agent delegation"
 
     def _blocked_model_response(self, request: ModelRequest[Any]) -> ModelResponse[Any] | None:
@@ -225,10 +232,7 @@ class ResearchLimitsMiddleware(AgentMiddleware[ResearchLimitsState, Any, Any]):
         return ModelResponse(
             result=[
                 AIMessage(
-                    content=(
-                        f"Error: research budget exceeded for {label}. "
-                        f"Limit is {limit} model call(s) for this run."
-                    )
+                    content=f"{label.capitalize()} call budget exhausted. Ending this run."
                 )
             ]
         )
@@ -249,16 +253,6 @@ class ResearchLimitsMiddleware(AgentMiddleware[ResearchLimitsState, Any, Any]):
                 "available immediately before this model call."
             ),
         ]
-
-        if self.model_call_counter is not None and self.max_model_calls is not None:
-            current = counts.get(self.model_call_counter, 0)
-            remaining_after_this_call = max(self.max_model_calls - current - 1, 0)
-            sections.append(
-                "- "
-                f"{self._label_for_counter(self.model_call_counter)} calls: "
-                f"{current}/{self.max_model_calls} used before this response; "
-                f"this response consumes 1, leaving {remaining_after_this_call}."
-            )
 
         search_current = counts.get("web_search", 0)
         sections.append(
