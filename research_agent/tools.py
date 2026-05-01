@@ -73,8 +73,9 @@ def _search_tavily(query: str, max_results: int) -> dict[str, Any]:
             "api_key": api_key,
             "query": query,
             "max_results": max_results,
-            "include_answer": True,
+            "include_answer": False,
             "include_raw_content": False,
+            "search_depth": "advanced",
         },
         timeout=20.0,
     )
@@ -89,7 +90,7 @@ def web_search(query: str) -> str:
     Args:
         query: Search query to execute.
     """
-    max_results = 5
+    max_results = 3
 
     try:
         payload = _search_tavily(query, max_results)
