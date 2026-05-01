@@ -20,7 +20,14 @@ from research_agent.tools import web_search
 load_dotenv()
 
 settings = Settings.from_env()
-model = init_chat_model(settings.model, temperature=settings.temperature)
+orchestrator_model = init_chat_model(
+    settings.orchestrator_model,
+    temperature=settings.temperature,
+)
+researcher_model = init_chat_model(
+    settings.researcher_model,
+    temperature=settings.temperature,
+)
 
 current_date = datetime.now().strftime("%Y-%m-%d")
 
@@ -33,6 +40,7 @@ research_subagent = {
     "description": (
         "Research one focused AI sector topic and return concise findings with source URLs."
     ),
+    "model": researcher_model,
     "system_prompt": RESEARCH_INSTRUCTIONS,
     "tools": [web_search],
     "middleware": [
@@ -57,7 +65,7 @@ INSTRUCTIONS = (
 )
 
 agent = create_deep_agent(
-    model=model,
+    model=orchestrator_model,
     tools=[],
     system_prompt=INSTRUCTIONS,
     subagents=[research_subagent],

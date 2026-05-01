@@ -16,14 +16,16 @@ cp .env.example .env
 Edit `.env` with a model provider key and a Tavily key:
 
 ```bash
-RESEARCH_AGENT_MODEL=anthropic:claude-sonnet-4-20250514
-ANTHROPIC_API_KEY=...
+ORCHESTRATOR_MODEL=deepseek:deepseek-v4-pro
+RESEARCHER_MODEL=deepseek:deepseek-v4-flash
+DEEPSEEK_API_KEY=...
 TAVILY_API_KEY=...
 ```
 
-The default model ID follows Anthropic's published model naming. You can switch
-providers by changing `RESEARCH_AGENT_MODEL` to another LangChain model string
-and setting the matching provider key.
+The default model IDs use DeepSeek's V4 models: Pro for orchestration and
+synthesis, Flash for focused research subagents. You can switch providers by
+changing `ORCHESTRATOR_MODEL` and `RESEARCHER_MODEL` to other LangChain model
+strings and setting the matching provider key.
 
 ## Run Locally
 

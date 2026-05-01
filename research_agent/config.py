@@ -5,14 +5,16 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-DEFAULT_MODEL = "anthropic:claude-sonnet-4-20250514"
+DEFAULT_ORCHESTRATOR_MODEL = "deepseek:deepseek-v4-pro"
+DEFAULT_RESEARCHER_MODEL = "deepseek:deepseek-v4-flash"
 
 
 @dataclass(frozen=True)
 class Settings:
     """Settings loaded from environment variables."""
 
-    model: str = DEFAULT_MODEL
+    orchestrator_model: str = DEFAULT_ORCHESTRATOR_MODEL
+    researcher_model: str = DEFAULT_RESEARCHER_MODEL
     temperature: float = 0.0
     max_search_calls: int = 8
     max_task_calls: int = 10
@@ -30,7 +32,14 @@ class Settings:
             ValueError: If numeric environment variables are malformed.
         """
         return cls(
-            model=os.getenv("RESEARCH_AGENT_MODEL", DEFAULT_MODEL),
+            orchestrator_model=os.getenv(
+                "ORCHESTRATOR_MODEL",
+                DEFAULT_ORCHESTRATOR_MODEL,
+            ),
+            researcher_model=os.getenv(
+                "RESEARCHER_MODEL",
+                DEFAULT_RESEARCHER_MODEL,
+            ),
             temperature=_parse_float("RESEARCH_AGENT_TEMPERATURE", 0.0),
             max_search_calls=_parse_int("MAX_SEARCH_CALLS", 8),
             max_task_calls=_parse_int("MAX_TASK_CALLS", 10),

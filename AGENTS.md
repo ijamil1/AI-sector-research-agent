@@ -89,8 +89,9 @@ uv run --extra dev pytest
 
 Copy `.env.example` to `.env` and configure:
 
-- `RESEARCH_AGENT_MODEL`
-- provider API key, such as `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
+- `ORCHESTRATOR_MODEL`
+- `RESEARCHER_MODEL`
+- provider API key, such as `DEEPSEEK_API_KEY`, `ANTHROPIC_API_KEY`, or `OPENAI_API_KEY`
 - `TAVILY_API_KEY`
 - optional `MAX_SEARCH_CALLS`
 - optional `MAX_TASK_CALLS`
