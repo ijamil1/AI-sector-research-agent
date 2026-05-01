@@ -10,13 +10,15 @@ def test_settings_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("RESEARCH_AGENT_TEMPERATURE", raising=False)
     monkeypatch.delenv("MAX_SEARCH_CALLS", raising=False)
     monkeypatch.delenv("MAX_TASK_CALLS", raising=False)
+    monkeypatch.delenv("MAX_ORCHESTRATOR_MODEL_CALLS", raising=False)
 
     settings = Settings.from_env()
 
     assert settings.model == DEFAULT_MODEL
     assert settings.temperature == 0.0
-    assert settings.max_search_calls == 8
-    assert settings.max_task_calls == 3
+    assert settings.max_search_calls == 10
+    assert settings.max_task_calls == 10
+    assert settings.max_orchestrator_model_calls == 6
 
 
 def test_settings_overrides(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -24,6 +26,7 @@ def test_settings_overrides(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("RESEARCH_AGENT_TEMPERATURE", "0.2")
     monkeypatch.setenv("MAX_SEARCH_CALLS", "2")
     monkeypatch.setenv("MAX_TASK_CALLS", "1")
+    monkeypatch.setenv("MAX_ORCHESTRATOR_MODEL_CALLS", "4")
 
     settings = Settings.from_env()
 
@@ -31,6 +34,7 @@ def test_settings_overrides(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.temperature == 0.2
     assert settings.max_search_calls == 2
     assert settings.max_task_calls == 1
+    assert settings.max_orchestrator_model_calls == 4
 
 
 def test_settings_rejects_bad_integer(monkeypatch: pytest.MonkeyPatch) -> None:

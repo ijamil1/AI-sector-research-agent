@@ -83,20 +83,13 @@ def _search_tavily(query: str, max_results: int) -> dict[str, Any]:
 
 
 @tool(parse_docstring=True)
-def web_search(query: str, max_results: int = 3) -> str:
+def web_search(query: str) -> str:
     """Search the web for source-backed information.
 
     Args:
         query: Search query to execute.
-        max_results: Maximum number of results to return.
-
-    Returns:
-        Compact source-backed search results with URLs.
     """
-    if max_results < 1:
-        return "Error: max_results must be at least 1."
-    if max_results > 10:
-        return "Error: max_results must be 10 or less."
+    max_results = 5
 
     try:
         payload = _search_tavily(query, max_results)
@@ -106,16 +99,3 @@ def web_search(query: str, max_results: int = 3) -> str:
         return f"Error: web search request failed: {exc}"
 
     return _format_tavily_results(query, payload)
-
-
-@tool(parse_docstring=True)
-def think(reflection: str) -> str:
-    """Record a strategic research reflection.
-
-    Args:
-        reflection: Assessment of findings, gaps, evidence quality, and next steps.
-
-    Returns:
-        Confirmation that the reflection was recorded.
-    """
-    return f"Reflection recorded: {reflection}"

@@ -1,18 +1,14 @@
 """Tests for research tools."""
 
-from research_agent.tools import _format_tavily_results, think, web_search
+from research_agent.tools import _format_tavily_results, web_search
 
 
-def test_think_is_deterministic() -> None:
-    result = think.invoke({"reflection": "Need stronger source coverage."})
+def test_web_search_requires_api_key(monkeypatch) -> None:
+    monkeypatch.delenv("TAVILY_API_KEY", raising=False)
 
-    assert result == "Reflection recorded: Need stronger source coverage."
+    result = web_search.invoke({"query": "AI chips market"})
 
-
-def test_web_search_rejects_invalid_max_results() -> None:
-    result = web_search.invoke({"query": "AI chips market", "max_results": 0})
-
-    assert result == "Error: max_results must be at least 1."
+    assert result == "Error: TAVILY_API_KEY is required for web_search."
 
 
 def test_format_tavily_results_includes_sources() -> None:

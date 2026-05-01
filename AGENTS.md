@@ -15,7 +15,7 @@ The intended use case is researching the latest news, trends, developments, and 
 
 - `agent.py` is the LangGraph entrypoint. It exports `agent`, which is exposed as graph `research` in `langgraph.json`.
 - `research_agent/prompts.py` contains the orchestrator and researcher prompts.
-- `research_agent/tools.py` contains the Tavily-backed `web_search` tool and the `think` reflection tool.
+- `research_agent/tools.py` contains the Tavily-backed `web_search` tool.
 - `research_agent/middleware.py` contains `ResearchLimitsMiddleware`, which enforces runtime budgets for web search and research-subagent delegation.
 - `research_agent/config.py` loads runtime settings from environment variables.
 - `tests/` contains focused unit tests for config, tools, and middleware.
@@ -38,21 +38,31 @@ Important library behavior:
 
 `agent.py` creates:
 
-- the main orchestrator agent with tools `[web_search, think]`
-- a focused `research-agent` subagent with tools `[web_search, think]`
+- the main orchestrator agent with no custom tools
+- a focused `research-agent` subagent with tools `[web_search]`
 - `ResearchLimitsMiddleware` configured from environment settings
 
 Default budgets from `Settings` are:
 
 - `MAX_SEARCH_CALLS=8`
 - `MAX_TASK_CALLS=3`
+- `MAX_ORCHESTRATOR_MODEL_CALLS=6`
 
 The middleware counts:
 
 - `web_search` tool calls as `web_search`
 - `task` calls where `subagent_type == "research-agent"` as `research_agent_tasks`
+- outer-orchestrator model calls as `orchestrator_model_calls`
 
-The middleware does not count `think`, filesystem tools, or the auto-added `general-purpose` subagent.
+The outer orchestrator does not expose `web_search` to its model and sets its
+search limit to `0`. The `research-agent` subagent exposes `web_search` and has
+its own `ResearchLimitsMiddleware` with task delegation disabled via
+`max_task_calls=0`. Both the orchestrator and research subagent middleware append
+current budget notices to the system prompt. The orchestrator also blocks model
+calls once its configured model-call budget is exhausted; research subagent
+activity is bounded through the `web_search` tool budget instead.
+
+The middleware does not count filesystem tools or the auto-added `general-purpose` subagent.
 
 ## Commands
 

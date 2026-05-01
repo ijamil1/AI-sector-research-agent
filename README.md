@@ -63,12 +63,14 @@ print(result["messages"][-1]["content"])
 
 - `web_search`
 - `task` calls to the `research-agent` subagent
+- model calls made by the orchestrator
 
 Configure them in `.env`:
 
 ```bash
 MAX_SEARCH_CALLS=8
 MAX_TASK_CALLS=3
+MAX_ORCHESTRATOR_MODEL_CALLS=6
 ```
 
 These limits are enforced by middleware, not only by prompt instructions.

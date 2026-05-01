@@ -5,7 +5,6 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-
 DEFAULT_MODEL = "anthropic:claude-sonnet-4-20250514"
 
 
@@ -16,10 +15,12 @@ class Settings:
     model: str = DEFAULT_MODEL
     temperature: float = 0.0
     max_search_calls: int = 8
-    max_task_calls: int = 3
+    max_task_calls: int = 10
+    max_orchestrator_model_calls: int = 30
+    max_researcher_model_calls: int = 30
 
     @classmethod
-    def from_env(cls) -> "Settings":
+    def from_env(cls) -> Settings:
         """Create settings from process environment variables.
 
         Returns:
@@ -32,7 +33,9 @@ class Settings:
             model=os.getenv("RESEARCH_AGENT_MODEL", DEFAULT_MODEL),
             temperature=_parse_float("RESEARCH_AGENT_TEMPERATURE", 0.0),
             max_search_calls=_parse_int("MAX_SEARCH_CALLS", 8),
-            max_task_calls=_parse_int("MAX_TASK_CALLS", 3),
+            max_task_calls=_parse_int("MAX_TASK_CALLS", 10),
+            max_orchestrator_model_calls=_parse_int("MAX_ORCHESTRATOR_MODEL_CALLS", 30),
+            max_researcher_model_calls=_parse_int("MAX_RESEARCHER_MODEL_CALLS", 30)
         )
 
 
