@@ -5,8 +5,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-DEFAULT_ORCHESTRATOR_MODEL = "deepseek:deepseek-v4-pro"
-DEFAULT_RESEARCHER_MODEL = "deepseek:deepseek-v4-flash"
+DEFAULT_ORCHESTRATOR_MODEL = "openai:gpt-5.4-nano-2026-03-17"
+DEFAULT_RESEARCHER_MODEL = "openai:gpt-5.4-nano-2026-03-17"
 
 
 @dataclass(frozen=True)

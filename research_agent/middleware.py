@@ -222,7 +222,7 @@ class ResearchLimitsMiddleware(AgentMiddleware[ResearchLimitsState, Any, Any]):
         if self.model_call_counter is None:
             return None
 
-        counts = request.runtime.state.get("research_limit_counts") or {}
+        counts = request.state.get("research_limit_counts") or {}
         current = counts.get(self.model_call_counter, 0)
         limit = self._limit_for_counter(self.model_call_counter)
         if current < limit:
@@ -244,7 +244,7 @@ class ResearchLimitsMiddleware(AgentMiddleware[ResearchLimitsState, Any, Any]):
         )
 
     def _budget_notice(self, request: ModelRequest[Any]) -> str:
-        counts = request.runtime.state.get("research_limit_counts") or {}
+        counts = request.state.get("research_limit_counts") or {}
         sections = [
             "## Runtime Research Budgets",
             (
