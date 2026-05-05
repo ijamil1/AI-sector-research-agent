@@ -16,9 +16,9 @@ class Settings:
     orchestrator_model: str = DEFAULT_ORCHESTRATOR_MODEL
     researcher_model: str = DEFAULT_RESEARCHER_MODEL
     temperature: float = 0.0
-    max_search_calls: int = 8
-    max_task_calls: int = 10
-    max_orchestrator_model_calls: int = 30
+    max_search_calls: int = 10
+    max_task_calls: int = 25
+    max_orchestrator_model_calls: int = 50
     max_researcher_model_calls: int = 30
 
     @classmethod
